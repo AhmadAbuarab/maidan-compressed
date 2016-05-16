@@ -1,106 +1,203 @@
-// Initialize your app
+window.onerror = function (errorMsg, url, lineNumber) {
+    alert('Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber);
+}
 
-    var myApp = new Framework7();
+// Initialize your app
+var myApp = new Framework7();
 
 // Export selectors engine
-    var $$ = Dom7;
+var $$ = Dom7;
+var pictureSource;
 // Add view
-    var mainView = myApp.addView('.view-main', {
-        // Because we use fixed-through navbar we can enable dynamic navbar
-        dynamicNavbar: true
+var mainView = myApp.addView('.view-main', {
+    // Because we use fixed-through navbar we can enable dynamic navbar
+    dynamicNavbar: true
+});
+
+
+function onPhotoURISuccesshitsimages(imageData) {
+    var image = '<li><a rel="gallery-3" href="' + imageData + '" title="Photo title" class="swipebox"><img width="100%" height="80%" src="' + imageData + '" alt="image"/></a></li>';
+    $('#photoslist').prepend(image);
+}
+
+function onDeviceReady() {
+    cordova.exec(null, null, "SplashScreen", "hide", []);
+    pictureSource = navigator.camera.PictureSourceType;
+    destinationType = navigator.camera.DestinationType;
+
+
+
+
+}
+
+function onFail(message) {
+        alert('Failed because: ' + message);
+}
+
+function onPhotoURISuccessfarimage(imageData) {
+
+    $('.farimage').attr({
+        'src': imageData,
+        'width': '100%'
     });
+}
+
+function onPhotoURISuccesshitsimages(imageData) {
 
 
-    $(document).ajaxSend(function (event, jqXHR, settings) {
-        $('#general-ajax-load').fadeIn();
-    });
+    var image = '<li><a rel="gallery-3" href="' + imageData + '" title="Photo title" class="swipebox"><img width="100%" height="80%" src="' + imageData + '" alt="image"/></a></li>';
+    console.log($('#photoslist'));
+    $('#photoslist').prepend(image);
 
-    $(document).ajaxComplete(function (event, jqXHR, settings) {
-        $('#general-ajax-load').fadeOut();
-    });
+}
 
-    // Handlebars Helpers
-    Handlebars.registerHelper('ToJson', function (context) {
-        return JSON.stringify(context);
-    });
+function capturePhotoWithFile(type) {
 
-    // Save Conditions To LocalStorage
-    Handlebars.registerHelper('is_status', function (msg, matchMsg, options)
-    {
-        if (msg === matchMsg)
-            return true;
-        else
-            return false;
-    });
+    if (type == 'farimage') {
 
-
- Handlebars.registerHelper('option', function(value, allOptions) {
-    var allOptions = eval(allOptions);
-    var arrayLength=allOptions.length;
-    var selectedOption='';
-    var options='';
-    for(var x=0; x<arrayLength ; x++) {
-        if(value==allOptions[x])
-            selectedOption=value;
-        else
-            options +='<option>'+allOptions[x]+'</option>';
-    }
-    return new Handlebars.SafeString('<option value="' + selectedOption + '" selected>' + selectedOption + "</option>"+options);
-  });
-
-
-    var update_cond_tpl = {"Action_Update_Conditions_Input": {
-            "ActionMobile": {
-                "ActivitySerialNumber": "{{conditionsReq.ActivitySerialNumber}}",
-                "ActivityUID": "{{conditionsReq.ActivityUID}}",
-                "Category": "عام",
-                "Display": "التقويم والأنشطة",
-                "RowStatusOld": "Y",
-                "InspectSubType": "{{conditionsReq.InspectSubType}}",
-                "LiceNumber": "{{conditionsReq.LiceNumber}}",
-                "PrimaryOwnerId": "{{conditionsReq.PrimaryOwnerId}}",
-                "SourcesName": "{{conditionsReq.SourcesName}}",
-                "Status": "{{conditionsReq.Status}}",
-                "StoreMainActivity": "{{conditionsReq.StoreMainActivity}}",
-                "StoreNameARA": "{{conditionsReq.StoreNameARA}}",
-                "StoreNameENU": "{{conditionsReq.StoreNameENU}}",
-                "StoreOrder": "{{conditionsReq.StoreOrder}}",
-                "StoreRegNo": [],
-                "StoreStartDate": [],
-                "StoreStartHijriDate": [],
-                "StoreSubActivity": "{{conditionsReq.StoreSubActivity}}",
-                "Type": "{{conditionsReq.Type}}",
-                "ListOfActivitiesCond": []
-            },
-            "ActionId": "{{conditionsReq.ActionId}}"
-        }
-    };
-
-    var MobileApp = new HmmMobileApp();
-
-    $('.login-btn').click(function () {
-        var userName = $('.userNameLogin').val();
-        var userPass = $('.passwordLogin').val();
-
-        var myparams = {"userId": userName, "userPass": userPass};
-        MobileApp.sendRequest('login', myparams, function (loginFlag) {
-            localStorage.setItem('loginFlag', loginFlag);
+        navigator.camera.getPicture(onPhotoURISuccessfarimage, onFail, {
+            quality: 50,
+            encodingType: Camera.EncodingType.JPEG,
+            destinationType: Camera.DestinationType.FILE_URI,
+            correctOrientation: true
         });
+    } else {
+        navigator.camera.getPicture(onPhotoURISuccesshitsimages, onFail, {
+            quality: 50,
+            encodingType: Camera.EncodingType.JPEG,
+            destinationType: Camera.DestinationType.FILE_URI,
+            correctOrientation: true
+        });
+    }
+}
+
+function getPhoto(source, type) {
+    // Retrieve image file location from specified source
+
+
+    if (type == 'farimage') {
+        navigator.camera.getPicture(onPhotoURISuccessfarimage, onFail, {
+            quality: 50,
+            destinationType: destinationType.FILE_URI,
+            sourceType: source
+        });
+    } else {
+        navigator.camera.getPicture(onPhotoURISuccesshitsimages, onFail, {
+            quality: 50,
+            destinationType: destinationType.FILE_URI,
+            sourceType: source
+        });
+    }
+
+}    
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+
+    try{
+    pictureSource = navigator.camera.PictureSourceType;
+    destinationType = navigator.camera.DestinationType;
+    }catch(e){console.log(e);}
+}    
+
+
+$(document).ajaxSend(function (event, jqXHR, settings) {
+    $('#general-ajax-load').fadeIn();
+});
+
+$(document).ajaxComplete(function (event, jqXHR, settings) {
+    $('#general-ajax-load').fadeOut();
+});
+
+// Handlebars Helpers
+Handlebars.registerHelper('ToJson', function (context) {
+    return JSON.stringify(context);
+});
+
+// Save Conditions To LocalStorage
+Handlebars.registerHelper('is_status', function (msg, matchMsg, options)
+{
+    if (msg === matchMsg)
+        return true;
+    else
+        return false;
+});
+
+
+Handlebars.registerHelper('option', function (value, allOptions) {
+    var allOptions = eval(allOptions);
+    var arrayLength = allOptions.length;
+    var selectedOption = '';
+    var options = '';
+    for (var x = 0; x < arrayLength; x++) {
+        if (value == allOptions[x])
+            selectedOption = value;
+        else
+            options += '<option>' + allOptions[x] + '</option>';
+    }
+    return new Handlebars.SafeString('<option value="' + selectedOption + '" selected>' + selectedOption + "</option>" + options);
+});
+
+
+var update_cond_tpl = {"Action_Update_Conditions_Input": {
+        "ActionMobile": {
+            "ActivitySerialNumber": "{{conditionsReq.ActivitySerialNumber}}",
+            "ActivityUID": "{{conditionsReq.ActivityUID}}",
+            "Category": "عام",
+            "Display": "التقويم والأنشطة",
+            "RowStatusOld": "Y",
+            "InspectSubType": "{{conditionsReq.InspectSubType}}",
+            "LiceNumber": "{{conditionsReq.LiceNumber}}",
+            "PrimaryOwnerId": "{{conditionsReq.PrimaryOwnerId}}",
+            "SourcesName": "{{conditionsReq.SourcesName}}",
+            "Status": "{{conditionsReq.Status}}",
+            "StoreMainActivity": "{{conditionsReq.StoreMainActivity}}",
+            "StoreNameARA": "{{conditionsReq.StoreNameARA}}",
+            "StoreNameENU": "{{conditionsReq.StoreNameENU}}",
+            "StoreOrder": "{{conditionsReq.StoreOrder}}",
+            "StoreRegNo": [],
+            "StoreStartDate": [],
+            "StoreStartHijriDate": [],
+            "StoreSubActivity": "{{conditionsReq.StoreSubActivity}}",
+            "Type": "{{conditionsReq.Type}}",
+            "ListOfActivitiesCond": []
+        },
+        "ActionId": "{{conditionsReq.ActionId}}"
+    }
+};
+
+var MobileApp = new HmmMobileApp();
+
+$('.login-btn').click(function () {
+    var userName = $('.userNameLogin').val();
+    var userPass = $('.passwordLogin').val();
+
+    var myparams = {"userId": userName, "userPass": userPass};
+    MobileApp.sendRequest('login', myparams, function (loginFlag) {
+        localStorage.setItem('loginFlag', loginFlag);
 
         myparams = {"userName": userName};
         MobileApp.sendRequest('loginData', myparams, function (loginData) {
-            localStorage.setItem('loginData', loginData);
+            if (loginData != null) {
+                localStorage.setItem('loginData', loginData);
+                mainView.router.loadPage('tasks.html');
+            } else {
+                alert('Invalid user name or password');
+            }
         });
     });
 
+    return false;
+});
+
 // Callbacks to run specific code for specific pages, for example for About page:
-    myApp.onPageInit('first_task', function (page) {
+myApp.onPageInit('first_task', function (page) {
 
-        var loginId = localStorage.getItem('loginData');
-        var myparams = {"logInId": loginId};
+    var loginId = localStorage.getItem('loginData');
+    var myparams = {"logInId": loginId};
 
-        MobileApp.sendRequest('listActivities', myparams, function (ActivitiesArray) {
-
+    MobileApp.sendRequest('listActivities', myparams, function (ActivitiesArray) {
+        if (ActivitiesArray != null) {
             // Save Activities To LocalStorage
             localStorage.setItem('Activities', JSON.stringify(ActivitiesArray));
 
@@ -123,14 +220,64 @@
                 localStorage.setItem('active_activity', activity_date);
 
             });
-        });
+        }
     });
+});
 
-    // List Conditions
-    myApp.onPageInit('conditions', function (page) {
-        var actionId = localStorage.getItem('active_activity_id');
-        var myparams = {"actionId": actionId};
-        MobileApp.sendRequest('listConditions', myparams, function (ConditionsArray) {
+
+
+myApp.onPageInit('gis', function (page) {
+    /*var initialLocation;
+    var siberia = new google.maps.LatLng(60, 105);
+    var newyork = new google.maps.LatLng(40.69847032728747, -73.9514422416687);
+    var browserSupportFlag = new Boolean();
+    function initialize() {
+        var myOptions = {
+            zoom: 8,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("googleMap1"), myOptions);
+
+        // Try W3C Geolocation (Preferred)
+        if (navigator.geolocation) {
+            browserSupportFlag = true;
+            navigator.geolocation.getCurrentPosition(function (position) {
+                initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                map.setCenter(initialLocation);
+            }, function () {
+                handleNoGeolocation(browserSupportFlag);
+            });
+        }
+        // Browser doesn't support Geolocation
+        else {
+            browserSupportFlag = false;
+            handleNoGeolocation(browserSupportFlag);
+        }
+
+        function handleNoGeolocation(errorFlag) {
+            if (errorFlag == true) {
+                alert("Geolocation service failed.");
+                initialLocation = newyork;
+            } else {
+                alert("Your browser doesn't support geolocation. We've placed you in Siberia.");
+                initialLocation = siberia;
+            }
+            map.setCenter(initialLocation);
+        }
+    }
+    google.maps.event.addDomListener(window, 'click', initialize);*/
+});
+
+
+// List Conditions
+myApp.onPageInit('conditions', function (page) {
+
+
+    var actionId = localStorage.getItem('active_activity_id');
+    var myparams = {"actionId": actionId};
+    MobileApp.sendRequest('listConditions', myparams, function (ConditionsArray) {
+
+        if (ConditionsArray != null) {
             localStorage.setItem('Conditions', JSON.stringify(ConditionsArray));
             // Compile Template
             var source = $("#conditions-template").html();
@@ -193,12 +340,13 @@
                 $parentTr.attr('data-json', json);
 
             });
+        }
 
-
-        });
     });
+});
 
-    myApp.onPageInit('receive-operation', function (page) {
+myApp.onPageInit('receive-operation', function (page) {
+    if (localStorage.getItem('active_activity') != null) {
         var activity = eval('(' + localStorage.getItem('active_activity') + ')');
         localStorage.setItem('activituUId', activity['ActivityUID']);
         var $fields = $('input[type="text"]');
@@ -206,13 +354,16 @@
             var xmlName = $(this).attr('data-xmlname');
             $(this).val(activity[xmlName]);
         });
-    });
+    }
+});
 
 
-    // List violations
-    myApp.onPageInit('violations', function (page) {
+// List violations
+myApp.onPageInit('violations', function (page) {
+    if (localStorage.getItem('violations') != null) {
         var violationsArray = eval('(' + localStorage.getItem('violations') + ')');
-        var activityUID=violationsArray['ActivityUID'];
+        if(violationsArray != null) {
+        var activityUID = violationsArray['ActivityUID'];
         var source = $("#violations-template").html();
         var violationList = violationsArray['ListOfHmmMaidanActivtiesVio'];
         var activityUId = localStorage.getItem('activituUId');
@@ -249,111 +400,112 @@
                 myparams[$(this).data('vioname')] = $(this).val();
             });
 
-         MobileApp.sendRequest('listUptViolations', myparams, function (ViolationsUptArray) {
+            MobileApp.sendRequest('listUptViolations', myparams, function (ViolationsUptArray) {
 
-         });
-    });
+            });
+        });
+      }
+    }
 });
 
 
-myApp.onPageInit('notes', function (page) {;
-       var data = eval('(' + localStorage.getItem('violations') + ')');
-       localStorage.setItem('activityUId', data['ActivityUID']);
-       $('.saveNotes').click(function(){
-               var note= $('#noteText').val() 
-               var notesParam = {
-                "activitySerialNumber":data['ActivitySerialNumber'],
-                "activityUId": data['ActivityUID'],
-                "inspectSubType": data['InspectSubType'],
-                "liceNumber": data['LiceNumber'],
-                "primaryOwnerId": data['PrimaryOwnerId'],
-                "sourceName": data['SourcesName'],
-                "status": data['Status'],
-                "storeMainActivity":data['StoreMainActivity'] ,
-                "storeNameAra":data['StoreNameARA'] ,
-                "storeNameEnu": data['StoreNameENU'],
-                "storeOrder": data['StoreOrder'],
-                "storeRegNo": data['StoreRegNo'],
-                "storeStartDate": data['StoreStartDate'],
-                "storeStartHijriDate": data['StoreStartHijriDate'],
-                "storeSubActivity": data['StoreSubActivity'],
-                "type": data['Type'],
-                "id":"1-EE2OB1" ,
-                "caseId": data['ActivityUID'],
-                "note":note ,
-                "recordId":"1-EE2OB1" 
-            };
+myApp.onPageInit('notes', function (page) {
+    var data = eval('(' + localStorage.getItem('violations') + ')');
+    if(data != null) {
+    if(data['ActivityUID'] != null) {
+    localStorage.setItem('activityUId', data['ActivityUID']);
+    $('.saveNotes').click(function () {
+        var note = $('#noteText').val()
+        var notesParam = {
+            "activitySerialNumber": data['ActivitySerialNumber'],
+            "activityUId": data['ActivityUID'],
+            "inspectSubType": data['InspectSubType'],
+            "liceNumber": data['LiceNumber'],
+            "primaryOwnerId": data['PrimaryOwnerId'],
+            "sourceName": data['SourcesName'],
+            "status": data['Status'],
+            "storeMainActivity": data['StoreMainActivity'],
+            "storeNameAra": data['StoreNameARA'],
+            "storeNameEnu": data['StoreNameENU'],
+            "storeOrder": data['StoreOrder'],
+            "storeRegNo": data['StoreRegNo'],
+            "storeStartDate": data['StoreStartDate'],
+            "storeStartHijriDate": data['StoreStartHijriDate'],
+            "storeSubActivity": data['StoreSubActivity'],
+            "type": data['Type'],
+            "id": "1-EE2OB1",
+            "caseId": data['ActivityUID'],
+            "note": note,
+            "recordId": "1-EE2OB1"
+        };
 
-            MobileApp.sendRequest('listNotes', notesParam, function (NotesArray) {
-               console.log(NotesArray); 
-        });  
+        MobileApp.sendRequest('listNotes', notesParam, function (NotesArray) {
+            console.log(NotesArray);
+        });
     });
+  }
+}
 });
 
 
 myApp.onPageInit('end', function (page) {
     var activityUId = localStorage.getItem('activityUId');
-    var listStatusParam = {"objectSpcId":activityUId};
-    $('.save').click(function(){
+    var listStatusParam = {"objectSpcId": activityUId};
+    $('.save').click(function () {
         MobileApp.sendRequest('listStatus', listStatusParam, function (statusArray) {
 
-        });        
+        });
     });
 
-  });  
+});
 
 myApp.onPageInit('upload', function (page) {
     var uploader = new plupload.Uploader({
-    runtimes : 'html5,flash,silverlight,html4',
-    browse_button : 'pickfiles', // you can pass an id...
-    container: document.getElementById('container'), // ... or DOM Element itself
-    url : 'upload.php',
-    flash_swf_url : 'Moxie.swf',
-    silverlight_xap_url : 'Moxie.xap',
-    
-    filters : {
-        max_file_size : '10mb',
-        mime_types: [
-            {title : "Image files", extensions : "jpg,gif,png"},
-            {title : "Zip files", extensions : "zip"}
-        ]
-    },
-
-    init: {
-        PostInit: function() {
-            document.getElementById('filelist').innerHTML = '';
-
-            document.getElementById('uploadfiles').onclick = function() {
-                uploader.start();
-                return false;
-            };
+        runtimes: 'html5,flash,silverlight,html4',
+        browse_button: 'pickfiles', // you can pass an id...
+        container: document.getElementById('container'), // ... or DOM Element itself
+        url: 'upload.php',
+        flash_swf_url: 'Moxie.swf',
+        silverlight_xap_url: 'Moxie.xap',
+        filters: {
+            max_file_size: '10mb',
+            mime_types: [
+                {title: "Image files", extensions: "jpg,gif,png"},
+                {title: "Zip files", extensions: "zip"}
+            ]
         },
+        init: {
+            PostInit: function () {
+                document.getElementById('filelist').innerHTML = '';
 
-        FilesAdded: function(up, files) {
-            plupload.each(files, function(file) {
-                document.getElementById('filelist').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
-            });
-        },
-
-        UploadProgress: function(up, file) {
-            document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
-        },
-
-        Error: function(up, err) {
-            document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
+                document.getElementById('uploadfiles').onclick = function () {
+                    uploader.start();
+                    return false;
+                };
+            },
+            FilesAdded: function (up, files) {
+                plupload.each(files, function (file) {
+                    document.getElementById('filelist').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
+                });
+            },
+            UploadProgress: function (up, file) {
+                document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+            },
+            Error: function (up, err) {
+                document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
+            }
         }
-    }
+    });
+
+    uploader.init();
+
 });
-
-uploader.init();
-
-});    
 
 // Commot Events
 
-    $('#hmmTabel tr').click(function () {
-        var href = $(this).find("a").attr("href");
-        if (href) {
-            window.location = href;
-        }
-    });
+$('#hmmTabel tr').click(function () {
+    var href = $(this).find("a").attr("href");
+    if (href) {
+        window.location = href;
+    }
+});

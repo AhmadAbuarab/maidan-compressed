@@ -21,8 +21,10 @@ function onPhotoURISuccesshitsimages(imageData) {
 }
 
 function onDeviceReady() {
+    cordova.exec(null, null, "SplashScreen", "hide", []);
     pictureSource = navigator.camera.PictureSourceType;
     destinationType = navigator.camera.DestinationType;
+
 
 
 
